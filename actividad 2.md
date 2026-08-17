@@ -1,382 +1,244 @@
-# TP3 – Actividad 02 – Rate Monolitic
+# TP3 – Actividad 02 – Rate Monotonic
 
 ## Notación
 
-| Símbolo | Significado                                      |
-|:--------|:-------------------------------------------------|
-| C       | Tiempo máximo de ejecución (WCET)                |
-| P       | Período de activación (= T del enunciado)        |
-| D       | Plazo de finalización (deadline)                 |
-| U       | Factor de carga CPU                              |
-| T_M     | Hiperperíodo (ciclo mayor): mcm de todos los P_i |
-| T_s     | Ciclo secundario (tamaño de trama)               |
-| F       | Cantidad de tramas por hiperperíodo: T_M / T_s   |
+| Símbolo | Significado                       |
+|:--------|:----------------------------------|
+| C       | Tiempo máximo de ejecución (WCET) |
+| P       | Período de activación             |
+| D       | Plazo de finalización (deadline)  |
+| U       | Factor de carga CPU               |
+| H       | Hiperperíodo: mcm de los P_i      |
+| R       | Tiempo de respuesta               |
 
 En todos los sistemas del enunciado se cumple **P = D**.
 
-### Test de garantía (planificación estática/cíclica)
+### Test de garantía (Rate Monotonic)
 
-Para garantizar el cumplimiento de una planificación estática/cíclica (periódica):
+Para tareas periódicas con **P = D**, Rate Monotonic asigna prioridades fijas según el período: a menor período, mayor prioridad. Siguiendo el criterio de FreeRTOS, un valor numérico de prioridad más alto representa una prioridad mayor.
 
-1) Sis se cumple  
-2)
-**Criterio de planificabilidad:** el sistema es **planificable** si y solo si se cumplen **las cinco ecuaciones**.
+| Test | Condición | Significado |
+|:----:|:----------|:------------|
+| Suficiencia | U <= n(2^(1/n) - 1) | Si cumple, el sistema es planificable. Si no, el test es no concluyente. |
+| Exacto (RTA) | R_i <= D_i | Verifica el tiempo de respuesta de cada tarea. |
 
-### Prioridades
+Para el análisis exacto se itera:
 
-Se asignan de forma estática. Criterio: **deadline monotonic** (menor período (T) implica mayor prioridad).
+```
+w_i^(k+1) = C_i + SUM(ceil(w_i^k / P_j) * C_j), para toda tarea j de mayor prioridad
+```
+
+**Criterio de planificabilidad:** el sistema es **planificable** si el test de suficiencia lo garantiza o si todas las tareas cumplen **R_i <= D_i** mediante RTA.
 
 ### Carga de CPU
 
-Carga de cada tarea = **WCET / Period** = **C / T**.
+Carga de cada tarea = **WCET / Período** = **C / P**.
 
 Carga del sistema:
 
 ```
-U = SUM(Ci / Ti) <= 1   (<= 100%)
+U = SUM(C_i / P_i) <= 1   (<= 100%)
 ```
 
-Si U > 100%, el sistema no es planificable (incumple ecuación **(2)**).
-
----
-# Sistema 1
-
-**Tareas:** T1(1, 4, 4), T2(2, 5, 5), T3(5, 20, 20).
-
-## 1. Asignación de prioridades
-
-- **P1 (Alta):** T1 ($T = 4$)
-- **P2 (Media):** T2 ($T = 5$)
-- **P3 (Baja):** T3 ($T = 20$)
-
-## 2. Cálculos base
-
-- **Factor de Uso (U):**
-
-  $$
-  U = \frac{1}{4} + \frac{2}{5} + \frac{5}{20}
-  = 0,25 + 0,4 + 0,25
-  = \mathbf{0,90}
-  $$
-
-- **Hiperperíodo (H):**
-
-  $$
-  H = \operatorname{mcm}(4,5,20) = \mathbf{20}
-  $$
-
-- **Período Secundario ($T_S$):**
-
-  $$
-  T_S = \operatorname{mcd}(4,5,20) = \mathbf{1}
-  $$
-
-## 3. Test de garantía
-
-- **Suficiencia:** Para $N = 3$, el límite es aproximadamente $0,779$.
-
-  $$
-  0,90 > 0,779
-  $$
-
-  Por lo tanto, el test no es concluyente.
-
-- **Exacto (RTA):**
-
-  - $R_1 = 1 \leq 4$ → **OK**
-
-  - Para $T_2$:
-
-    $$
-    w_2^0 = 2
-    $$
-
-    $$
-    w_2^1 = 2 + \left\lceil \frac{2}{4} \right\rceil 1 = 3
-    $$
-
-    $$
-    w_2^2 = 3
-    $$
-
-    Por lo tanto:
-
-    $$
-    R_2 = 3 \leq 5
-    $$
-
-    → **OK**
-
-  - Para $T_3$:
-
-    $$
-    w_3^0 = 5
-    $$
-
-    $$
-    w_3^1 =
-    5 +
-    \left\lceil \frac{5}{4} \right\rceil 1 +
-    \left\lceil \frac{5}{5} \right\rceil 2
-    = 9
-    $$
-
-    $$
-    w_3^2 = 12
-    $$
-
-    $$
-    w_3^3 = 14
-    $$
-
-    $$
-    w_3^4 = 15
-    $$
-
-    $$
-    w_3^5 = 15
-    $$
-
-    Por lo tanto:
-
-    $$
-    R_3 = 15 \leq 20
-    $$
-
-    → **OK**
-
-- **Resultado:** El sistema es **planificable**.
-
-## 4. Diagrama de Gantt (resumen)
-
-- $t = 0$: Ejecuta T1(1). Luego T2(2). Luego T3(1).
-- $t = 4$: T1 se activa y desaloja a T3. Ejecuta T1(1). Luego continúa T3(4).
-- $t = 5$: T2 se activa. Ejecuta T2(2).
+Si U > 100%, el sistema no es planificable.
 
 ---
 
-# Sistema 2
+## Sistema 1
 
-**Tareas:** T1(1, 6, 6), T2(2, 10, 10), T3(2, 18, 18).
+| Tarea | C | P = D | Prioridad |
+|:------|:-:|:-----:|:---------:|
+| T1    | 1 |   4   | 3 (mayor) |
+| T2    | 2 |   5   |     2     |
+| T3    | 5 |  20   | 1 (menor) |
 
-## 1. Asignación de prioridades
+### Carga de CPU
 
-- **P1:** T1 ($T = 6$)
-- **P2:** T2 ($T = 10$)
-- **P3:** T3 ($T = 18$)
+| Tarea | Período (P) | WCET (C) | Carga CPU |
+|:-----:|:-----------:|:--------:|:---------:|
+| T1 | 4 | 1 | 1/4 = **25%** |
+| T2 | 5 | 2 | 2/5 = **40%** |
+| T3 | 20 | 5 | 5/20 = **25%** |
+| **Total** | | | **U = 90%** |
 
-## 2. Cálculos base
+### Hiperperíodo
 
-- **Factor de Uso (U):**
+```
+H = mcm(4, 5, 20) = 20
+```
 
-  $$
-  U =
-  \frac{1}{6} +
-  \frac{2}{10} +
-  \frac{2}{18}
-  \approx
-  0,166 + 0,2 + 0,111
-  = \mathbf{0,477}
-  $$
+### Test de garantía
 
-- **Hiperperíodo (H):**
+Para n = 3, el límite de Liu y Layland es aproximadamente **77,9%**.
 
-  $$
-  H = \operatorname{mcm}(6,10,18) = \mathbf{90}
-  $$
+| Test | Resultado |
+|:-----|:----------|
+| Suficiencia | 90% > 77,9% → no concluyente |
+| RTA — T1 | R_1 = 1 <= 4 → cumple |
+| RTA — T2 | R_2 = 3 <= 5 → cumple |
+| RTA — T3 | R_3 = 15 <= 20 → cumple |
+| **Planificable** | **Sí** (RTA cumple para todas las tareas) |
 
-- **Período Secundario ($T_S$):**
+#### Cálculo RTA de T2
 
-  $$
-  T_S = \operatorname{mcd}(6,10,18) = \mathbf{2}
-  $$
+```
+w_2^0 = 2
+w_2^1 = 2 + ceil(2 / 4) * 1 = 3
+w_2^2 = 3
+R_2 = 3 <= 5
+```
 
-## 3. Test de garantía
+#### Cálculo RTA de T3
 
-- **Suficiencia:**
+```
+w_3^0 = 5
+w_3^1 = 5 + ceil(5 / 4) * 1 + ceil(5 / 5) * 2 = 9
+w_3^2 = 12
+w_3^3 = 14
+w_3^4 = 15
+w_3^5 = 15
+R_3 = 15 <= 20
+```
 
-  $$
-  0,477 \leq 0,779
-  $$
+### Diagrama de Gantt (resumen)
 
-- **Resultado:** El sistema es **planificable**, garantizado por el test de suficiencia.
-
----
-
-# Sistema 3
-
-**Tareas:** T1(1, 8, 8), T2(3, 15, 15), T3(4, 20, 20), T4(6, 22, 22).
-
-## 1. Asignación de prioridades
-
-- **P1:** T1
-- **P2:** T2
-- **P3:** T3
-- **P4:** T4
-
-## 2. Cálculos base
-
-- **Factor de Uso (U):**
-
-  $$
-  U =
-  \frac{1}{8} +
-  \frac{3}{15} +
-  \frac{4}{20} +
-  \frac{6}{22}
-  \approx
-  0,125 + 0,2 + 0,2 + 0,272
-  = \mathbf{0,797}
-  $$
-
-- **Hiperperíodo (H):**
-
-  $$
-  H = \operatorname{mcm}(8,15,20,22) = \mathbf{1320}
-  $$
-
-- **Período Secundario ($T_S$):**
-
-  $$
-  T_S = \operatorname{mcd}(8,15,20,22) = \mathbf{1}
-  $$
-
-## 3. Test de garantía
-
-- **Suficiencia:** Para $N = 4$, el límite es aproximadamente $0,756$.
-
-  $$
-  0,797 > 0,756
-  $$
-
-  Por lo tanto, el test no es concluyente.
-
-- **Exacto (RTA):**
-
-  - $R_1 = 1$
-  - $R_2 = 4$
-  - $R_3 = 8$
-
-  Todos cumplen sus respectivos deadlines.
-
-  Para $T_4$:
-
-  $$
-  w_4^0 = 6
-  $$
-
-  $$
-  w_4^1 =
-  6 +
-  \left\lceil \frac{6}{8} \right\rceil 1 +
-  \left\lceil \frac{6}{15} \right\rceil 3 +
-  \left\lceil \frac{6}{20} \right\rceil 4
-  = 14
-  $$
-
-  $$
-  w_4^2 = 15
-  $$
-
-  $$
-  w_4^3 = 15
-  $$
-
-  Por lo tanto:
-
-  $$
-  R_4 = 15 \leq 22
-  $$
-
-  → **OK**
-
-- **Resultado:** El sistema es **planificable**.
+| Instante | Ejecución |
+|:--------:|:----------|
+| 0 | T1(1), luego T2(2) y T3(1) |
+| 4 | T1 se activa, desaloja a T3, ejecuta 1 u.t.; T3 continúa 4 u.t. |
+| 5 | T2 se activa y ejecuta 2 u.t. |
 
 ---
 
-# Sistema 4
+## Sistema 2
 
-**Tareas:** T1(0,5, 4, 4), T2(1, 5, 5), T3(2, 10, 10), T4(9, 24, 24).
+| Tarea | C | P = D | Prioridad |
+|:------|:-:|:-----:|:---------:|
+| T1 | 1 | 6 | 3 (mayor) |
+| T2 | 2 | 10 | 2 |
+| T3 | 2 | 18 | 1 (menor) |
 
-## 1. Asignación de prioridades
+### Carga de CPU
 
-- **P1:** T1
-- **P2:** T2
-- **P3:** T3
-- **P4:** T4
+| Tarea | Período (P) | WCET (C) | Carga CPU |
+|:-----:|:-----------:|:--------:|:---------:|
+| T1 | 6 | 1 | 1/6 = **16,7%** |
+| T2 | 10 | 2 | 2/10 = **20%** |
+| T3 | 18 | 2 | 2/18 = **11,1%** |
+| **Total** | | | **U = 47,7%** |
 
-## 2. Cálculos base
+### Hiperperíodo
 
-- **Factor de Uso (U):**
+```
+H = mcm(6, 10, 18) = 90
+```
 
-  $$
-  U =
-  \frac{0,5}{4} +
-  \frac{1}{5} +
-  \frac{2}{10} +
-  \frac{9}{24}
-  = 0,125 + 0,2 + 0,2 + 0,375
-  = \mathbf{0,90}
-  $$
+### Test de garantía
 
-- **Hiperperíodo (H):**
+Para n = 3, el límite de Liu y Layland es aproximadamente **77,9%**.
 
-  $$
-  H = \operatorname{mcm}(4,5,10,24) = \mathbf{120}
-  $$
+| Test | Resultado |
+|:-----|:----------|
+| Suficiencia | 47,7% <= 77,9% → cumple |
+| **Planificable** | **Sí** (garantizado por el test de suficiencia) |
 
-- **Período Secundario ($T_S$):**
+---
 
-  $$
-  T_S = \operatorname{mcd}(4,5,10,24) = \mathbf{1}
-  $$
+## Sistema 3
 
-## 3. Test de garantía
+| Tarea | C | P = D | Prioridad |
+|:------|:-:|:-----:|:---------:|
+| T1 | 1 | 8 | 4 (mayor) |
+| T2 | 3 | 15 | 3 |
+| T3 | 4 | 20 | 2 |
+| T4 | 6 | 22 | 1 (menor) |
 
-- **Suficiencia:**
+### Carga de CPU
 
-  $$
-  0,90 > 0,756
-  $$
+| Tarea | Período (P) | WCET (C) | Carga CPU |
+|:-----:|:-----------:|:--------:|:---------:|
+| T1 | 8 | 1 | 1/8 = **12,5%** |
+| T2 | 15 | 3 | 3/15 = **20%** |
+| T3 | 20 | 4 | 4/20 = **20%** |
+| T4 | 22 | 6 | 6/22 = **27,3%** |
+| **Total** | | | **U = 79,7%** |
 
-  Por lo tanto, el test no es concluyente.
+### Hiperperíodo
 
-- **Exacto (RTA):**
+```
+H = mcm(8, 15, 20, 22) = 1320
+```
 
-  - $R_1 = 0,5$
-  - $R_2 = 1,5$
-  - $R_3 = 3,5$
+### Test de garantía
 
-  Todos cumplen sus respectivos deadlines.
+Para n = 4, el límite de Liu y Layland es aproximadamente **75,6%**.
 
-  Para $T_4$:
+| Test | Resultado |
+|:-----|:----------|
+| Suficiencia | 79,7% > 75,6% → no concluyente |
+| RTA — T1 | R_1 = 1 <= 8 → cumple |
+| RTA — T2 | R_2 = 4 <= 15 → cumple |
+| RTA — T3 | R_3 = 8 <= 20 → cumple |
+| RTA — T4 | R_4 = 15 <= 22 → cumple |
+| **Planificable** | **Sí** (RTA cumple para todas las tareas) |
 
-  $$
-  w_4^0 = 9
-  $$
+#### Cálculo RTA de T4
 
-  $$
-  w_4^1 = 9 + 3(0,5) + 2(1) + 1(2) = 14,5
-  $$
+```
+w_4^0 = 6
+w_4^1 = 6 + ceil(6 / 8) * 1 + ceil(6 / 15) * 3 + ceil(6 / 20) * 4 = 14
+w_4^2 = 15
+w_4^3 = 15
+R_4 = 15 <= 22
+```
 
-  $$
-  w_4^2 = 18
-  $$
+---
 
-  $$
-  w_4^3 = 19,5
-  $$
+## Sistema 4
 
-  $$
-  w_4^4 = 19,5
-  $$
+| Tarea | C | P = D | Prioridad |
+|:------|:-:|:-----:|:---------:|
+| T1 | 0,5 | 4 | 4 (mayor) |
+| T2 | 1 | 5 | 3 |
+| T3 | 2 | 10 | 2 |
+| T4 | 9 | 24 | 1 (menor) |
 
-  Por lo tanto:
+### Carga de CPU
 
-  $$
-  R_4 = 19,5 \leq 24
-  $$
+| Tarea | Período (P) | WCET (C) | Carga CPU |
+|:-----:|:-----------:|:--------:|:---------:|
+| T1 | 4 | 0,5 | 0,5/4 = **12,5%** |
+| T2 | 5 | 1 | 1/5 = **20%** |
+| T3 | 10 | 2 | 2/10 = **20%** |
+| T4 | 24 | 9 | 9/24 = **37,5%** |
+| **Total** | | | **U = 90%** |
 
-  → **OK**
+### Hiperperíodo
 
-- **Resultado:** El sistema es **planificable**.
+```
+H = mcm(4, 5, 10, 24) = 120
+```
+
+### Test de garantía
+
+Para n = 4, el límite de Liu y Layland es aproximadamente **75,6%**.
+
+| Test | Resultado |
+|:-----|:----------|
+| Suficiencia | 90% > 75,6% → no concluyente |
+| RTA — T1 | R_1 = 0,5 <= 4 → cumple |
+| RTA — T2 | R_2 = 1,5 <= 5 → cumple |
+| RTA — T3 | R_3 = 3,5 <= 10 → cumple |
+| RTA — T4 | R_4 = 19,5 <= 24 → cumple |
+| **Planificable** | **Sí** (RTA cumple para todas las tareas) |
+
+#### Cálculo RTA de T4
+
+```
+w_4^0 = 9
+w_4^1 = 9 + 3(0,5) + 2(1) + 1(2) = 14,5
+w_4^2 = 18
+w_4^3 = 19,5
+w_4^4 = 19,5
+R_4 = 19,5 <= 24
+```
