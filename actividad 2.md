@@ -182,13 +182,37 @@ Para n = 4, el límite de Liu y Layland es aproximadamente **75,6%**.
 | RTA — T4 | R_4 = 15 <= 22 → cumple |
 | **Planificable** | **Sí** (RTA cumple para todas las tareas) |
 
+#### Cálculo RTA de T1
+
+```
+R_1 = C_1 = 1 <= 8
+```
+
+#### Cálculo RTA de T2
+
+```
+w_2^0 = 3
+w_2^1 = 3 + ceil(3 / 8) * 1 = 4
+w_2^2 = 3 + ceil(4 / 8) * 1 = 4
+R_2 = 4 <= 15
+```
+
+#### Cálculo RTA de T3
+
+```
+w_3^0 = 4
+w_3^1 = 4 + ceil(4 / 8) * 1 + ceil(4 / 15) * 3 = 8
+w_3^2 = 4 + ceil(8 / 8) * 1 + ceil(8 / 15) * 3 = 8
+R_3 = 8 <= 20
+```
+
 #### Cálculo RTA de T4
 
 ```
 w_4^0 = 6
 w_4^1 = 6 + ceil(6 / 8) * 1 + ceil(6 / 15) * 3 + ceil(6 / 20) * 4 = 14
-w_4^2 = 15
-w_4^3 = 15
+w_4^2 = 6 + ceil(14 / 8) * 1 + ceil(14 / 15) * 3 + ceil(14 / 20) * 4 = 15
+w_4^3 = 6 + ceil(15 / 8) * 1 + ceil(15 / 15) * 3 + ceil(15 / 20) * 4 = 15
 R_4 = 15 <= 22
 ```
 
@@ -232,13 +256,37 @@ Para n = 4, el límite de Liu y Layland es aproximadamente **75,6%**.
 | RTA — T4 | R_4 = 19,5 <= 24 → cumple |
 | **Planificable** | **Sí** (RTA cumple para todas las tareas) |
 
+#### Cálculo RTA de T1
+
+```
+R_1 = C_1 = 0,5 <= 4
+```
+
+#### Cálculo RTA de T2
+
+```
+w_2^0 = 1
+w_2^1 = 1 + ceil(1 / 4) * 0,5 = 1,5
+w_2^2 = 1 + ceil(1,5 / 4) * 0,5 = 1,5
+R_2 = 1,5 <= 5
+```
+
+#### Cálculo RTA de T3
+
+```
+w_3^0 = 2
+w_3^1 = 2 + ceil(2 / 4) * 0,5 + ceil(2 / 5) * 1 = 3,5
+w_3^2 = 2 + ceil(3,5 / 4) * 0,5 + ceil(3,5 / 5) * 1 = 3,5
+R_3 = 3,5 <= 10
+```
+
 #### Cálculo RTA de T4
 
 ```
 w_4^0 = 9
 w_4^1 = 9 + 3(0,5) + 2(1) + 1(2) = 14,5
-w_4^2 = 18
-w_4^3 = 19,5
-w_4^4 = 19,5
+w_4^2 = 9 + 4(0,5) + 3(1) + 2(2) = 18
+w_4^3 = 9 + 5(0,5) + 4(1) + 2(2) = 19,5
+w_4^4 = 9 + 5(0,5) + 4(1) + 2(2) = 19,5
 R_4 = 19,5 <= 24
 ```
