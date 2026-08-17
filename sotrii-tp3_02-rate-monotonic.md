@@ -290,3 +290,13 @@ w_4^3 = 9 + 5(0,5) + 4(1) + 2(2) = 19,5
 w_4^4 = 9 + 5(0,5) + 4(1) + 2(2) = 19,5
 R_4 = 19,5 <= 24
 ```
+
+## Configuración FreeRTOS (Paso 03)
+
+Para implementar un **sistema Rate Monotonic (RM) en FreeRTOS** de forma eficiente y determinista, se propone la siguiente configuración basada en los requerimientos técnicos de las fuentes:
+* Verificación de Carga: Asegurar que el factor de utilización total (U) sea menor a 1 (100%) y si es necesario hacer el Análisis de Tiempo de Respuesta (RTA) para garantizar que cada tarea finalice antes de su próximo periodo para saber la validez del sistema propuesto.
+* Planificador Expulsivo: Configurar configUSE_PREEMPTION en 1 en FreeRTOSConfig.h para que las tareas de mayor prioridad puedan desalojar a las de menor prioridad inmediatamente al activarse
+* Asignación de Prioridades Estáticas: Asignar niveles de prioridad de forma inversa al periodo de cada tarea; la tarea con el periodo más corto recibe la prioridad numérica más alta en FreeRTOS
+* Mecanismo de Activación Periódica: Cada tarea debe tener un timer y un semaforo asociados para que sea el que al hacer timeout el timer, haga un give del semaforo y la tarea corra en  cada periodo. 
+* Independencia de Tareas: Evitar el uso de recursos compartidos o secciones críticas que puedan causar inversión de prioridades, manteniendo las tareas como entidades independientes
+* Monitoreo de Tiempos (Safety): Implementar un Monitor de Tareas para verificar que ninguna tarea exceda su WCET (peor tiempo de ejecución) y un Watchdog Timer para resetear el sistema en caso de fallos de tiempo
