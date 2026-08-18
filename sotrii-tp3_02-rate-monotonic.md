@@ -100,13 +100,9 @@ w_3^5 = 15
 R_3 = 15 <= 20
 ```
 
-### Diagrama de Gantt (resumen)
+### Diagrama de Gantt
 
-| Instante | Ejecución |
-|:--------:|:----------|
-| 0 | T1(1), luego T2(2) y T3(1) |
-| 4 | T1 se activa, desaloja a T3, ejecuta 1 u.t.; T3 continúa 4 u.t. |
-| 5 | T2 se activa y ejecuta 2 u.t. |
+![Gantt Rate Monotonic Sistema 1](figuras/gantt-rm-sistema-1.png)
 
 ---
 
@@ -216,6 +212,10 @@ w_4^3 = 6 + ceil(15 / 8) * 1 + ceil(15 / 15) * 3 + ceil(15 / 20) * 4 = 15
 R_4 = 15 <= 22
 ```
 
+### Diagrama de Gantt
+
+![Gantt Rate Monotonic Sistema 3](figuras/gantt-rm-sistema-3.png)
+
 ---
 
 ## Sistema 4
@@ -290,6 +290,10 @@ w_4^3 = 9 + 5(0,5) + 4(1) + 2(2) = 19,5
 w_4^4 = 9 + 5(0,5) + 4(1) + 2(2) = 19,5
 R_4 = 19,5 <= 24
 ```
+
+### Diagrama de Gantt
+
+![Gantt Rate Monotonic Sistema 4](figuras/gantt-rm-sistema-4.png)
 
 ## Configuración FreeRTOS (Paso 03)
 
