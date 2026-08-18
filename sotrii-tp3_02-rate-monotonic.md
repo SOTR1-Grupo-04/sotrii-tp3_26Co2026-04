@@ -102,6 +102,8 @@ R_3 = 15 <= 20
 
 ### Diagrama de Gantt
 
+El diagrama representa el hiperperíodo completo. Cuando se activa una tarea de mayor prioridad, esta desaloja inmediatamente a la tarea que se encuentra en ejecución.
+
 ![Gantt Rate Monotonic Sistema 1](figuras/gantt-rm-sistema-1.png)
 
 ---
@@ -137,6 +139,12 @@ Para n = 3, el límite de Liu y Layland es aproximadamente **77,9%**.
 |:-----|:----------|
 | Suficiencia | 47,7% <= 77,9% → cumple |
 | **Planificable** | **Sí** (garantizado por el test de suficiencia) |
+
+### Diagrama de Gantt
+
+El hiperperíodo completo de 90 u.t. se divide en tres intervalos para mantener legible el diagrama.
+
+![Gantt Rate Monotonic Sistema 2](figuras/gantt-rm-sistema-2.png)
 
 ---
 
@@ -292,6 +300,8 @@ R_4 = 19,5 <= 24
 ```
 
 ### Diagrama de Gantt
+
+El hiperperíodo completo de 120 u.t. se divide en tres intervalos para mantener legible el diagrama.
 
 ![Gantt Rate Monotonic Sistema 4](figuras/gantt-rm-sistema-4.png)
 
