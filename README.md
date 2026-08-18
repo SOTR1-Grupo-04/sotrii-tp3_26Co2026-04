@@ -7,7 +7,7 @@
 
 | N° SIU | Apellidos, Nombres       | Fecha     | Deadline  |
 | :----- | :---------------------   | :------:  | :-------: |
-| e2601  | Botalla, Tomás Enrique   | 18/04     | 18/04     |
+| e2601  | Lazcano, Luca Mauricio   | 18/04     | 18/04     |
 
 ## Notas
 
