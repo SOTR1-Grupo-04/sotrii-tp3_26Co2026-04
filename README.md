@@ -7,9 +7,7 @@
 
 | N° SIU | Apellidos, Nombres       | Fecha     | Deadline  |
 | :----- | :---------------------   | :------:  | :-------: |
-| e2601  | Botalla, Tomás Enrique   |           |           |
-| e2615  | Restovich, Joaquin       |           |           |
-| e2606  | Lazcano, Luca Mauricio   |           |           |
+| e2601  | Botalla, Tomás Enrique   | 18/04     | 18/04     |
 
 ## Notas
 
