@@ -308,4 +308,13 @@ Candidatos con T_s >= max (C_i) = 9 (ec. 1): T_s puede ser 10, 12 o 24.
 
 ## Configuración FreeRTOS (Paso 03)
 
-PENDIENTE
+Para implementar un Cyclic Scheduling en FreeRTOS, conviene utilizar un esquema cooperativo y dirigido por una tabla de planificación, ya que el orden y los instantes de ejecución fueron determinados previamente al realizar el scheduling. En `FreeRTOSConfig.h` configurar:
+
+```c
+#define configUSE_PREEMPTION        0
+#define configUSE_TIME_SLICING      0
+```
+
+Con `configUSE_PREEMPTION = 0`, FreeRTOS utiliza planificación cooperativa: una tarea en ejecución continúa hasta bloquearse, suspenderse o ceder explícitamente el procesador.
+
+El scheduling puede implementarse mediante una tarea planificadora (cyclic executive) que se activa cada período secundario o minor cycle y ejecuta, en el orden previamente calculado, las tareas correspondientes a cada frame. La secuencia completa de frames se repite cada hiperperíodo.
